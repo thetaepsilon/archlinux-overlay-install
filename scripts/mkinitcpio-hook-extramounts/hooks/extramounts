@@ -1,0 +1,32 @@
+#!/usr/bin/ash
+
+do_entry() {
+	device="$1";
+	dir="$2";
+	fstype="$3";
+	options="$4";
+	mount -t "$fstype" -o "$options" "$device" "/new_root/$dir";
+}
+
+run_latehook() {
+	oldifs="$IFS";
+	result=0;
+	for kv in $(cat /proc/cmdline); do {
+		case "$kv" in
+		fstab=*)
+			#msg "$kv";
+			reduced="${kv/fstab=/}";
+			#msg "$reduced";
+			IFS=":";
+			do_entry $reduced;
+			result=$?;
+			IFS="$oldifs";
+			;;
+		*)
+			#msg "skipping kv" "$kv";
+			;;
+		esac
+	}; done;
+	if test "$result" -ne 0; then msg "Warning: one or more entries failed to mount!"; fi;
+	mount >&2;
+}
