@@ -1,0 +1,38 @@
+#!/bin/sh
+# mountapifs
+# runs a command while holding certain essential API mount-points in a chroot prefix open.
+# the mount points are cleaned up on termination.
+
+err() { echo "$@" >&2; }
+usage() {
+	err "Usage: $0 prefix command [args...]";
+	exit 1;
+}
+
+r="$1";
+shift;
+if test -z "$r"; then usage; fi;
+if test $# -lt 1; then usage; fi;
+
+
+
+cleanup() {
+	echo "# Cleaning up mounts...";
+	umount "$r/sys/";
+	umount "$r/proc/";
+	umount "$r/dev/";
+}
+trap cleanup EXIT;
+
+e=0;
+mount -t proc proc "$r/proc/" && {
+	proc=1;
+	mount -t sysfs sysfs "$r/sys/" && {
+		sys=1;
+		mount -o bind /dev "$r/dev/" && {
+			dev=1;
+			"$@";
+		} || exit $?;
+	} || exit $?;
+} || exit $?;
+
