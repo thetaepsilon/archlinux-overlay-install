@@ -13,7 +13,7 @@ run_latehook() {
 	result=0;
 	for kv in $(cat /proc/cmdline); do {
 		case "$kv" in
-		fstab=*)
+		fstabent=*)
 			#msg "$kv";
 			reduced="${kv/fstab=/}";
 			#msg "$reduced";
