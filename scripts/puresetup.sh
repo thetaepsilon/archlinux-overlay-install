@@ -12,6 +12,10 @@ trymkdir() {
 	mkdir "$1" | exit $?;
 }
 
+trymkdir "$root/proc";
+trymkdir "$root/sys";
+trymkdir "$root/dev";
+
 trymkdir "$root/cfg";
 
 trymkdir "$root/pkgdata";
