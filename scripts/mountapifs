@@ -42,13 +42,13 @@ cleanup() {
 }
 trap cleanup EXIT;
 
-e=0;
+#e=0;
 mount -t proc proc "$r/proc/" && {
-	proc=1;
+	#proc=1;
 	mount -t sysfs sysfs "$r/sys/" && {
-		sys=1;
+		#sys=1;
 		spawndev "$r/dev/" && {
-			dev=1;
+			#dev=1;
 			"$@";
 		} || exit $?;
 	} || exit $?;
