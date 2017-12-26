@@ -2,6 +2,7 @@
 # mountapifs
 # runs a command while holding certain essential API mount-points in a chroot prefix open.
 # the mount points are cleaned up on termination.
+# /sys inside the prefix is not mounted unless requested via env var.
 
 err() { echo "$@" >&2; }
 usage() {
@@ -30,10 +31,16 @@ cleanup() {
 }
 trap cleanup EXIT;
 
+maybe_mount_sys() {
+	if test -n "$MOUNTAPIFS_SYS"; then {
+		mount -t sysfs sysfs "$r/sys/";
+	}; fi;
+}
+
 #e=0;
 mount -t proc proc "$r/proc/" && {
 	#proc=1;
-	mount -t sysfs sysfs "$r/sys/" && {
+	maybe_mount_sys && {
 		#sys=1;
 		spawndev "$r/dev/" && {
 			#dev=1;
@@ -41,4 +48,3 @@ mount -t proc proc "$r/proc/" && {
 		} || exit $?;
 	} || exit $?;
 } || exit $?;
-
