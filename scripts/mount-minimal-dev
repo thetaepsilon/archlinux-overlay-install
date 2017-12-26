@@ -1,0 +1,25 @@
+#!/bin/sh
+# creates a minimal /dev filesystem containing the basic char devices that may be needed by shell scripts etc.
+# /dev/null, /dev/urandom, ...
+# this script does NOT clean up the mount point if failure occurs,
+# callers are expected to do this.
+# the created tmpfs is intentially very small as it's only intended for device nodes.
+
+_path="$1";
+opts="size=0,uid=0,gid=0,mode=755,nr_inodes=8";
+mount -t tmpfs -o "$opts" "minimaldev" "$_path" || exit $?;
+
+cd "$_path" || return $?;
+
+# see /sys/devices/virtual/mem
+mknod -m 666 null c 1 3 || exit $?;
+mknod -m 666 zero c 1 5 || exit $?;
+mknod -m 666 full c 1 7 || exit $?;
+mknod -m 644 urandom c 1 9 || exit $?;
+
+# yeah, I know,  but urandom *is* cryptographically secure.
+# automated install is about speed.
+ln -s urandom random || exit $?;
+
+# and done
+exit 0;

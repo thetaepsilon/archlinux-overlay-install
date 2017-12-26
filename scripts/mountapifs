@@ -17,19 +17,7 @@ if test $# -lt 1; then usage; fi;
 # at least for pacman installations, not the entire /dev needs to be accessible.
 # instead just mount a restricted tmpfs with the essentials that could be used in a script.
 spawndev() {
-	_path="$1";
-	mount -t tmpfs -o size=0,uid=0,gid=0,mode=755,nr_inodes=8 "fakedev" "$_path" || return $?;
-	(
-		cd "$_path" || return $?;
-		# see /sys/devices/virtual/mem
-		mknod -m 666 null c 1 3 || exit $?;
-		mknod -m 666 zero c 1 5 || exit $?;
-		mknod -m 666 full c 1 7 || exit $?;
-		mknod -m 644 urandom c 1 9 || exit $?;
-		# yeah, I know,  but urandom *is* cryptographically secure.
-		# automated install is about speed.
-		ln -s urandom random || exit $?;
-	) || exit $?;
+	mount-minimal-dev "$1";
 }
 
 
