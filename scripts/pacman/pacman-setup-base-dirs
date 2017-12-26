@@ -1,0 +1,32 @@
+#!/bin/sh
+# set up the base directories of the pacman install prefix.
+
+if test "$#" -lt "1"; then {
+	echo "Usage: $0 <target prefix>";
+	exit 1;
+}; fi;
+
+target="$1";
+# "initialise" the installed package database to empty.
+# error out early so we don't accidentally create the prefix,
+# and also because the prefix really should be empty beforehand.
+mkdir -m 755 "$target/var" || exit $?;
+mkdir -m 755 "$target/var/lib" || exit $?;
+mkdir -m 755 "$target/var/lib/pacman" || exit $?;
+mkdir -m 755 "$target/var/lib/pacman/local" || exit $?;
+
+# create the directories needed for API mount points
+mkdir -m 755 "$target/dev" || exit $?;
+mkdir -m 755 "$target/sys" || exit $?;
+mkdir -m 755 "$target/proc" || exit $?;
+
+# as pacman wants the repository sync DBs inside the lib directory,
+# symlink it to a special directory which can then be bind mounted or further symlinked as needed.
+# also create a subdir within that for pre-install config files to live.
+mkdir -m 755 "$target/pkgdata" || exit $?;
+mkdir -m 755 "$target/pkgdata/etcpre" || exit $?;
+mkdir -m 755 "$target/pkgdata/sync" || exit $?;
+ln -s "../../../pkgdata/sync" "$target/var/lib/pacman/sync" || exit $?;
+
+# and of course create /etc for the pre-install configuration.
+mkdir -m 755 "$target/etc" || exit $?;
