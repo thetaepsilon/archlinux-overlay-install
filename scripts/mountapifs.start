@@ -18,8 +18,20 @@ maybe_mount_sys() {
 	}; fi;
 }
 
+# support the use of binding the real /dev if so desired.
+# this is used with bindinstallfs so that device/system information can be exposed correctly.
+mount_dev() {
+	_target="$1";
+	d="$MOUNTAPIFS_REAL_DEV";
+	if test -n "$d"; then {
+		mount -o bind "$d" "$_target";
+	}; else {
+		mount-minimal-dev "$_target";
+	}; fi;
+}
+
 
 
 mount -t proc proc "$r/proc/" &&
 	maybe_mount_sys &&
-	mount-minimal-dev "$r/dev/" || exit $?;
+	mount_dev "$r/dev/" || exit $?;
