@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# see mountapifs for details.
+# tries the start stage, but if that fails makes best effort to cleanup before returning.
+# useful in systemd services as systemd won't call ExecStop (though it will call ExecStopPost).
+r="$1";
+if test -z "$r"; then echo "Usage: $0 rootdir" >&2; exit 1; fi;
+
+mountapifs.start "$r";
+e=$?;
+if test "$e" -ne 0; then {
+	echo "# mountapifs.start failed with code $e, rolling back..." >&2;
+	mountapifs.stop "$r";
+	exit $e;
+}; fi;
