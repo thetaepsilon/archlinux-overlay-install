@@ -1,0 +1,28 @@
+#!/bin/sh
+# see mountapifs for what this does.
+# this script executes the cleanup part.
+
+usage() {
+	echo "Usage: $0 rootdir" >&2;
+	exit 1;
+};
+
+if test $# -lt 1; then usage; fi;
+r="$1";
+
+
+
+cleanup() {
+	echo "# Cleaning up mounts...";
+	e=0;
+	test -n "$MOUNTAPIFS_SYS" && { umount "$r/sys/" || e=1; };
+	umount "$r/proc/" || e=1;
+	umount "$r/dev/" || e=1;
+	return $e;
+}
+
+cleanup || {
+	# alas, mount is bloody useless and won't tell us much via exit codes...
+	# not even if the dir wasn't a mount point.
+	echo "Warning: one or more mount points failed to unmount." >&2;
+}

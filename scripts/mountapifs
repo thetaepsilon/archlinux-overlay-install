@@ -24,27 +24,10 @@ spawndev() {
 
 
 cleanup() {
-	echo "# Cleaning up mounts...";
-	umount "$r/sys/";
-	umount "$r/proc/";
-	umount "$r/dev/";
+	mountapifs.stop "$r";
 }
 trap cleanup EXIT;
 
-maybe_mount_sys() {
-	if test -n "$MOUNTAPIFS_SYS"; then {
-		mount -t sysfs sysfs "$r/sys/";
-	}; fi;
-}
 
-#e=0;
-mount -t proc proc "$r/proc/" && {
-	#proc=1;
-	maybe_mount_sys && {
-		#sys=1;
-		spawndev "$r/dev/" && {
-			#dev=1;
-			"$@";
-		} || exit $?;
-	} || exit $?;
-} || exit $?;
+
+mountapifs.start "$r" && "$@" || exit $?;

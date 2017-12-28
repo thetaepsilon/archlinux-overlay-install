@@ -1,0 +1,25 @@
+#!/bin/sh
+# see mountapifs for what this does.
+# this script executes the startup part.
+
+usage() {
+	echo "Usage: $0 rootdir" >&2;
+	exit 1;
+};
+
+if test $# -lt 1; then usage; fi;
+r="$1";
+
+
+
+maybe_mount_sys() {
+	if test -n "$MOUNTAPIFS_SYS"; then {
+		mount -t sysfs sysfs "$r/sys/";
+	}; fi;
+}
+
+
+
+mount -t proc proc "$r/proc/" &&
+	maybe_mount_sys &&
+	mount-minimal-dev "$r/dev/" || exit $?;
